@@ -1,5 +1,5 @@
 import styles from "../styles/App.module.css";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "react-tooltip/dist/react-tooltip.css";
 import Canvas from "./Canvas";
 import Controls from "./Controls";
@@ -25,9 +25,8 @@ const randomHexColor = (): string => {
 };
 
 export const randomNoiseVal = (): number => {
-  return 0.01;
   const max = 0.05;
-  const min = 0.001;
+  const min = 0.01;
   return Math.random() * (max - min) + min;
 };
 
@@ -47,6 +46,10 @@ const App = () => {
 
   // Bucket tool color (stored as hex string)
   const [fillCol, setFillCol] = useState<string>(randomHexColor());
+  const fillRef = useRef(fillCol);
+  useEffect(() => {
+    fillRef.current = fillCol;
+  }, [fillCol]);
 
   return (
     <>
@@ -57,7 +60,7 @@ const App = () => {
         setRenderSettings={setRenderSettings}
       />
       <div className={styles.centerBox}>
-        <Canvas fillColor={fillCol} renderSettings={renderSettings} />
+        <Canvas fillCol={fillRef} renderSettings={renderSettings} />
       </div>
     </>
   );

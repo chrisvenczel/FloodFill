@@ -1,9 +1,14 @@
 import styles from "../styles/App.module.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, MutableRefObject } from "react";
 import p5 from "p5";
-import axios from "axios";
 import { GenSettings, randomNoiseVal } from "./App";
 import "react-tooltip/dist/react-tooltip.css";
+import axios from "axios";
+
+interface Props {
+  fillCol: MutableRefObject<string>;
+  renderSettings: GenSettings;
+}
 
 const hexToRGB = (hex: string) => {
   const r = parseInt(hex.slice(1, 3), 16),
@@ -21,12 +26,14 @@ const sketch = (
   col3: string,
   width: number,
   height: number,
-  fillColor: string
+  fillCol: MutableRefObject<string>
 ) => {
   if (width === 0 || height === 0) return;
   p.setup = () => {
     p.createCanvas(width, height);
     p.noLoop();
+    // Disable retina scaling
+    p.pixelDensity(1);
   };
 
   // Generate a 'random' noise pattern
@@ -35,14 +42,24 @@ const sketch = (
     const colors = [hexToRGB(col1), hexToRGB(col2), hexToRGB(col3)];
 
     const noiseScale = randomNoiseVal();
-    for (let x = 0; x < p.width; x++) {
-      for (let y = 0; y < p.height; y++) {
+    // Load the current pixels of the canvas
+    p.loadPixels();
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = 4 * (y * width + x);
         const noiseVal = p.noise(x * noiseScale, y * noiseScale);
         const colorIndex = Math.floor(noiseVal * colors.length);
-        p.stroke(colors[colorIndex]);
-        p.point(x, y);
+        const [r, g, b] = colors[colorIndex];
+        p.pixels[idx] = r;
+        p.pixels[idx + 1] = g;
+        p.pixels[idx + 2] = b;
+        p.pixels[idx + 3] = 255;
       }
     }
+
+    // Update the canvas with the new pixel data
+    p.updatePixels();
   };
 
   p.mouseClicked = () => {
@@ -65,14 +82,12 @@ const sketch = (
         canvasArray.push(row);
       }
 
-      console.log(canvasArray);
-
       // Calculate the flood_fill on the server side
       axios
         .post("/flood_fill", {
           x: x,
           y: y,
-          color: hexToRGB(fillColor),
+          color: hexToRGB(fillCol.current),
           canvas: canvasArray,
         })
         .then((res: any) => {
@@ -82,9 +97,9 @@ const sketch = (
           p.loadPixels();
 
           // Iterate over the response data and update the pixels array
-          for (let y = 0; y < p.height; y++) {
-            for (let x = 0; x < p.width; x++) {
-              const idx = 4 * (y * p.width + x);
+          for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+              const idx = 4 * (y * width + x);
               const [r, g, b] = d[y][x];
               p.pixels[idx] = r;
               p.pixels[idx + 1] = g;
@@ -103,12 +118,7 @@ const sketch = (
   };
 };
 
-interface Props {
-  renderSettings: GenSettings;
-  fillColor: string;
-}
-
-const Canvas = ({ renderSettings, fillColor }: Props) => {
+const Canvas = ({ renderSettings, fillCol }: Props) => {
   // The P5JS canvas
   const canvasRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<any>(null);
@@ -126,20 +136,20 @@ const Canvas = ({ renderSettings, fillColor }: Props) => {
           renderSettings.col3,
           renderSettings.width,
           renderSettings.height,
-          fillColor
+          fillCol
         ),
       canvasRef.current
     );
 
     return () => p5InstanceRef.current.remove();
   }, [
-    sketch,
     renderSettings.col1,
     renderSettings.col2,
     renderSettings.col3,
     renderSettings.width,
     renderSettings.height,
     renderSettings.randomNoiseVal,
+    fillCol,
   ]);
 
   return (

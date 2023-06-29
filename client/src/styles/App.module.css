@@ -155,3 +155,9 @@
 .input.color:last-child {
   margin-bottom: 0;
 }
+
+.aboutModal {
+  width: 100%;
+  padding: 10px 20px;
+  line-height: 130%;
+}

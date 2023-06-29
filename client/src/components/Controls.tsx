@@ -3,6 +3,8 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { ChangeEvent, useState } from "react";
 import { GenSettings, randomNoiseVal } from "./App";
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
 
 // Remove any non-digit characters
 const restrictToNums = (rawVal: string): number => {
@@ -60,6 +62,42 @@ const Info = ({ msg }: { msg: string }) => {
   );
 };
 
+const AboutPopup = () => {
+  return (
+    <Popup
+      trigger={<div className={`${styles.aboutLink}`}>What is this?</div>}
+      modal
+    >
+      <div className={styles.aboutModal}>
+        <p>
+          This web page implements a flood fill algorithm such as those used in
+          MS Paint and Photoshop. Begin by generating a random image of{" "}
+          <a
+            target="_blank"
+            href="https://en.wikipedia.org/wiki/Perlin_noise#:~:text=Perlin%20noise%20is%20a%20type,the%20creation%20of%20image%20textures."
+          >
+            Perlin noise
+          </a>{" "}
+          by adjusting the color and canvas size options and then clicking
+          "Generate". Then click on the canvas to fill the area with the
+          selected fill color.
+        </p>
+        <p>
+          The algorithm implemented is based on the one described{" "}
+          <a
+            target="_blank"
+            href="https://theswissbay.ch/pdf/Gentoomen%20Library/Game%20Development/Programming/Graphics%20Gems%201.pdf"
+          >
+            here (page 296)
+          </a>
+          . It has been slightly modified in order to consider diagonal pixels
+          as adjacent.
+        </p>
+      </div>
+    </Popup>
+  );
+};
+
 interface Props {
   fillCol: string;
   setFillCol: React.Dispatch<React.SetStateAction<string>>;
@@ -82,7 +120,7 @@ const Controls = ({
       {/* Title & About */}
       <div className={styles.titleContainer}>
         <div className={`${styles.title}`}>Flood Filler</div>
-        <div className={`${styles.aboutLink}`}>What is this?</div>
+        <AboutPopup />
       </div>
 
       {/* Fill Color */}
