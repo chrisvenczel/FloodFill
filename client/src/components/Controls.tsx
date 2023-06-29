@@ -73,6 +73,7 @@ const AboutPopup = () => {
           This web page implements a flood fill algorithm such as those used in
           MS Paint and Photoshop. Begin by generating a random image of{" "}
           <a
+            rel="noreferrer"
             target="_blank"
             href="https://en.wikipedia.org/wiki/Perlin_noise#:~:text=Perlin%20noise%20is%20a%20type,the%20creation%20of%20image%20textures."
           >
@@ -85,6 +86,7 @@ const AboutPopup = () => {
         <p>
           The algorithm implemented is based on the one described{" "}
           <a
+            rel="noreferrer"
             target="_blank"
             href="https://theswissbay.ch/pdf/Gentoomen%20Library/Game%20Development/Programming/Graphics%20Gems%201.pdf"
           >
