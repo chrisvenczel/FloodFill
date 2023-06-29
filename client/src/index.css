@@ -7,10 +7,43 @@
 }
 
 * {
+  box-sizing: border-box;
   font-family: "Inter", sans-serif;
+  font-size: 18px;
+  transition-duration: 0.15s;
+}
+
+input[type="color"] {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+}
+
+body,
+html {
+  background-color: #171717;
+}
+
+html {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  background-color: #171717;
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: max(50px, 10vh);
+  padding-bottom: 50px;
 }
