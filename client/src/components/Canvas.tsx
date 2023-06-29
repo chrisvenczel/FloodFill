@@ -20,7 +20,8 @@ const sketch = (
   col2: string,
   col3: string,
   width: number,
-  height: number
+  height: number,
+  fillColor: string
 ) => {
   if (width === 0 || height === 0) return;
   p.setup = () => {
@@ -47,45 +48,67 @@ const sketch = (
   p.mouseClicked = () => {
     const x = p.mouseX;
     const y = p.mouseY;
-    p.loadPixels();
+    if (x > 0 && y > 0 && x < p.width && y < p.height) {
+      p.loadPixels();
 
-    // Convert 1D pixels array into 2D array
-    let canvasArray = [];
-    for (let i = 0; i < p.height; i++) {
-      let row = [];
-      for (let j = 0; j < p.width; j++) {
-        const idx = 4 * (i * p.width + j);
-        const r = p.pixels[idx];
-        const g = p.pixels[idx + 1];
-        const b = p.pixels[idx + 2];
-        const a = p.pixels[idx + 3];
-        row.push([r, g, b, a]);
+      // Convert 1D pixels array into 2D array
+      let canvasArray = [];
+      for (let i = 0; i < p.height; i++) {
+        let row = [];
+        for (let j = 0; j < p.width; j++) {
+          const idx = 4 * (i * p.width + j);
+          const r = p.pixels[idx];
+          const g = p.pixels[idx + 1];
+          const b = p.pixels[idx + 2];
+          row.push([r, g, b]);
+        }
+        canvasArray.push(row);
       }
-      canvasArray.push(row);
-    }
 
-    // Make axios post request
-    axios
-      .post("/flood_fill", {
-        x: x,
-        y: y,
-        color: "red",
-        canvas: canvasArray,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Request failed:", error);
-      });
+      console.log(canvasArray);
+
+      // Calculate the flood_fill on the server side
+      axios
+        .post("/flood_fill", {
+          x: x,
+          y: y,
+          color: hexToRGB(fillColor),
+          canvas: canvasArray,
+        })
+        .then((res: any) => {
+          const d = res.data;
+
+          // Load the current pixels of the canvas
+          p.loadPixels();
+
+          // Iterate over the response data and update the pixels array
+          for (let y = 0; y < p.height; y++) {
+            for (let x = 0; x < p.width; x++) {
+              const idx = 4 * (y * p.width + x);
+              const [r, g, b] = d[y][x];
+              p.pixels[idx] = r;
+              p.pixels[idx + 1] = g;
+              p.pixels[idx + 2] = b;
+              p.pixels[idx + 3] = 255;
+            }
+          }
+
+          // Update the canvas with the new pixel data
+          p.updatePixels();
+        })
+        .catch((error) => {
+          console.error("Request failed:", error);
+        });
+    }
   };
 };
 
 interface Props {
   renderSettings: GenSettings;
+  fillColor: string;
 }
 
-const Canvas = ({ renderSettings }: Props) => {
+const Canvas = ({ renderSettings, fillColor }: Props) => {
   // The P5JS canvas
   const canvasRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<any>(null);
@@ -102,7 +125,8 @@ const Canvas = ({ renderSettings }: Props) => {
           renderSettings.col2,
           renderSettings.col3,
           renderSettings.width,
-          renderSettings.height
+          renderSettings.height,
+          fillColor
         ),
       canvasRef.current
     );

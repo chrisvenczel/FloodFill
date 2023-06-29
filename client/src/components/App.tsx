@@ -25,7 +25,8 @@ const randomHexColor = (): string => {
 };
 
 export const randomNoiseVal = (): number => {
-  const max = 0.3;
+  return 0.01;
+  const max = 0.05;
   const min = 0.001;
   return Math.random() * (max - min) + min;
 };
@@ -56,7 +57,7 @@ const App = () => {
         setRenderSettings={setRenderSettings}
       />
       <div className={styles.centerBox}>
-        <Canvas renderSettings={renderSettings} />
+        <Canvas fillColor={fillCol} renderSettings={renderSettings} />
       </div>
     </>
   );
