@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.1473e199.css",
+    "main.js": "/static/js/main.da647b32.js",
+    "static/media/Inter-VariableFont.ttf": "/static/media/Inter-VariableFont.aadb65ac45347ff46699.ttf",
+    "index.html": "/index.html",
+    "main.1473e199.css.map": "/static/css/main.1473e199.css.map",
+    "main.da647b32.js.map": "/static/js/main.da647b32.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1473e199.css",
+    "static/js/main.da647b32.js"
+  ]
+}
