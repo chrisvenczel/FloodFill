@@ -1,5 +1,6 @@
 {
   "name": "client",
+  "homepage": "https://chrisvenczel.github.io/FloodFill",
   "version": "0.1.0",
   "private": true,
   "scripts": {
