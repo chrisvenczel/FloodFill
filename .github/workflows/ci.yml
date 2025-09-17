@@ -17,18 +17,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies (root)
+      - name: Install dependencies
         run: npm install
 
-      - name: Install dependencies (client)
-        run: |
-          cd client
-          npm install
-
       - name: Build React app
-        run: |
-          cd client
-          npm run build
+        run: npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

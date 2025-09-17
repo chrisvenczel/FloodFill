@@ -3,14 +3,14 @@ import { useEffect, useRef, MutableRefObject } from "react";
 import p5 from "p5";
 import { GenSettings, randomNoiseVal } from "./App";
 import "react-tooltip/dist/react-tooltip.css";
-import axios from "axios";
+import { scanLineFill } from "../utils/floodFill";
 
 interface Props {
   fillCol: MutableRefObject<string>;
   renderSettings: GenSettings;
 }
 
-const hexToRGB = (hex: string) => {
+const hexToRGB = (hex: string): [number, number, number] => {
   const r = parseInt(hex.slice(1, 3), 16),
     g = parseInt(hex.slice(3, 5), 16),
     b = parseInt(hex.slice(5, 7), 16);
@@ -69,9 +69,9 @@ const sketch = (
       p.loadPixels();
 
       // Convert 1D pixels array into 2D array
-      let canvasArray = [];
+      const canvasArray: [number, number, number][][] = [];
       for (let i = 0; i < p.height; i++) {
-        let row = [];
+        const row: [number, number, number][] = [];
         for (let j = 0; j < p.width; j++) {
           const idx = 4 * (i * p.width + j);
           const r = p.pixels[idx];
@@ -82,38 +82,30 @@ const sketch = (
         canvasArray.push(row);
       }
 
-      // Calculate the flood_fill on the server side
-      axios
-        .post("/flood_fill", {
-          x: x,
-          y: y,
-          color: hexToRGB(fillCol.current),
-          canvas: canvasArray,
-        })
-        .then((res: any) => {
-          const d = res.data;
+      const newCanv = scanLineFill(
+        Math.floor(x),
+        Math.floor(y),
+        hexToRGB(fillCol.current),
+        canvasArray
+      );
 
-          // Load the current pixels of the canvas
-          p.loadPixels();
+      // Load the current pixels of the canvas
+      p.loadPixels();
 
-          // Iterate over the response data and update the pixels array
-          for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-              const idx = 4 * (y * width + x);
-              const [r, g, b] = d[y][x];
-              p.pixels[idx] = r;
-              p.pixels[idx + 1] = g;
-              p.pixels[idx + 2] = b;
-              p.pixels[idx + 3] = 255;
-            }
-          }
+      // Iterate over the response data and update the pixels array
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = 4 * (y * width + x);
+          const [r, g, b] = newCanv[y][x];
+          p.pixels[idx] = r;
+          p.pixels[idx + 1] = g;
+          p.pixels[idx + 2] = b;
+          p.pixels[idx + 3] = 255;
+        }
+      }
 
-          // Update the canvas with the new pixel data
-          p.updatePixels();
-        })
-        .catch((error) => {
-          console.error("Request failed:", error);
-        });
+      // Update the canvas with the new pixel data
+      p.updatePixels();
     }
   };
 };

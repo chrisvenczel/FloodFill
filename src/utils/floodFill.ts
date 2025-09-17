@@ -1,16 +1,8 @@
-import express from "express";
-import bodyParser from "body-parser";
-
-const app = express();
-const port = 3001;
-
-app.use(bodyParser.json({ limit: "50mb" }));
-
 // Calculate a flood fill on a canvas (like a bucket tool)
 // Using a modified version of the algorithm at chapter 4.10 from:
 // https://theswissbay.ch/pdf/Gentoomen%20Library/Game%20Development/Programming/Graphics%20Gems%201.pdf
 // This modified version includes diagonals as adjacent pixels
-const scanLineFill = (
+export const scanLineFill = (
   startX: number,
   startY: number,
   newColor: [number, number, number],
@@ -92,15 +84,3 @@ const colorsMatch = (
     color1[2] === color2[2]
   );
 };
-
-app.post("/flood_fill", (req, res) => {
-  let { x, y, color, canvas } = req.body;
-  x = Math.floor(x);
-  y = Math.floor(y);
-  const newCanv = scanLineFill(x, y, color, canvas);
-  res.json(newCanv);
-});
-
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
-});
